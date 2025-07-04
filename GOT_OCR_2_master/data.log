@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/got/bin/deepspeed", line 3, in <module>
+    from deepspeed.launcher.runner import main
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/deepspeed/__init__.py", line 10, in <module>
+    import torch
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/__init__.py", line 2169, in <module>
+    from torch import (
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/nested/__init__.py", line 21, in <module>
+    from ._internal.nested_tensor import _rebuild_njt, NestedTensor as _NestedTensor
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/nested/_internal/nested_tensor.py", line 7, in <module>
+    from torch.nested._internal.nested_int import NestedIntNode
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/nested/_internal/nested_int.py", line 4, in <module>
+    from torch.fx.experimental._constant_symnode import ConstantIntNode
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/fx/__init__.py", line 88, in <module>
+    from torch.fx._symbolic_trace import (  # noqa: F401
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/fx/_symbolic_trace.py", line 21, in <module>
+    from ._lazy_graph_module import _make_graph_module
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/fx/_lazy_graph_module.py", line 4, in <module>
+    from torch.fx.graph_module import (
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/fx/graph_module.py", line 20, in <module>
+    from .graph import _custom_builtins, _is_from_torch, _PyTreeCodeGen, Graph, PythonCode
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/fx/graph.py", line 27, in <module>
+    from .node import _get_qualified_name, _type_repr, Argument, Node, Target
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/fx/node.py", line 88, in <module>
+    _ops.aten._assert_async.msg,
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/_ops.py", line 1265, in __getattr__
+    op, overload_names = _get_packet(qualified_op_name, module_name)
+  File "/root/miniconda3/envs/got/lib/python3.10/site-packages/torch/_ops.py", line 1290, in _get_packet
+    op, overload_names = torch._C._jit_get_operation(qualname)
+KeyboardInterrupt
