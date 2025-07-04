@@ -1,6 +1,7 @@
 
 from natsort import natsorted
 from megfile import smart_glob
+import numpy as np
 import smart_open
 import boto3
 from GOT.utils import conversation as conversation_lib
@@ -30,7 +31,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 class ConversationDataset(BaseDataset):
     """Conversation format dataset stage2 fine-tuning."""
 
-    def __init__(self, datasets, tokenizer, multimodal_cfg, augment: bool = False,):
+    def __init__(self, datasets, tokenizer, multimodal_cfg, augment: bool = True,):
         super(ConversationDataset, self).__init__(
             datasets, tokenizer, multimodal_cfg)
         # v0 version format conversation
@@ -105,6 +106,21 @@ class ConversationDataset(BaseDataset):
         self.im_start_token = 151857
 
         self.im_end_token = 151858
+
+        self.augment = augment
+
+        self.aug_func = get_aug_pipeline() if augment else None
+
+    def _aug(self, image: Image) -> Image:
+        img = np.array(image)
+        img = random_pad(img)
+        img = random_resize(img, MIN_RESIZE_RATIO, MAX_RESIZE_RATIO)
+        if random.random() < 0.2:
+            img = rotate(img, -5, 5)
+
+        if self.aug_func is not None:
+            img = self.aug_func(img)
+        return Image.fromarray(img)
 
     def multimodal_processor(self, sources, flag_num_patches):
         for source in sources:
@@ -288,6 +304,8 @@ class ConversationDataset(BaseDataset):
                     try:
                         image = Image.open(
                             image_path + "/" + image_file).convert('RGB')
+                        if self.augment:
+                            image = self._aug(image)
                     except:
                         print(
                             f'cannot identify image file {image_path + image_file}.')
