@@ -15,6 +15,7 @@ from torchvision import transforms
 from torchvision.transforms.functional import InterpolationMode
 from PIL import Image
 
+
 class BaseProcessor:
     def __init__(self):
         self.transform = lambda x: x
@@ -32,6 +33,7 @@ class BaseProcessor:
 
     #     return self.from_config(cfg)
 
+
 class BlipImageBaseProcessor(BaseProcessor):
     def __init__(self, mean=None, std=None):
         if mean is None:
@@ -44,7 +46,7 @@ class BlipImageBaseProcessor(BaseProcessor):
         self.normalize = transforms.Normalize(mean, std)
 
 
-## aug functions
+# aug functions
 def identity_func(img):
     return img
 
@@ -131,7 +133,7 @@ def color_func(img, factor):
     """
     same output as PIL.ImageEnhance.Color
     """
-    ## implementation according to PIL definition, quite slow
+    # implementation according to PIL definition, quite slow
     #  degenerate = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)[:, :, np.newaxis]
     #  out = blend(degenerate, img, factor)
     #  M = (
@@ -163,7 +165,8 @@ def brightness_func(img, factor):
     """
     same output as PIL.ImageEnhance.Contrast
     """
-    table = (np.arange(256, dtype=np.float32) * factor).clip(0, 255).astype(np.uint8)
+    table = (np.arange(256, dtype=np.float32) *
+             factor).clip(0, 255).astype(np.uint8)
     out = table[img]
     return out
 
@@ -184,7 +187,8 @@ def sharpness_func(img, factor):
     else:
         out = img.astype(np.float32)
         degenerate = degenerate.astype(np.float32)[1:-1, 1:-1, :]
-        out[1:-1, 1:-1, :] = degenerate + factor * (out[1:-1, 1:-1, :] - degenerate)
+        out[1:-1, 1:-1, :] = degenerate + factor * \
+            (out[1:-1, 1:-1, :] - degenerate)
         out = out.astype(np.uint8)
     return out
 
@@ -252,7 +256,7 @@ def cutout_func(img, pad_size, replace=(0, 0, 0)):
     return out
 
 
-### level to args
+# level to args
 def enhance_level_to_args(MAX_LEVEL):
     def level_to_args(level):
         return ((level / MAX_LEVEL) * 1.8 + 0.1,)
@@ -429,10 +433,6 @@ class VideoRandomAugment(object):
 #     a = RandomAugment()
 #     img = np.random.randn(32, 32, 3)
 #     a(img)
-
-
-
-
 
 
 class BlipImageTrainProcessor(BlipImageBaseProcessor):
