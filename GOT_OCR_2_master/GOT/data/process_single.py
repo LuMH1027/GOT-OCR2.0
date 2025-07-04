@@ -3,8 +3,11 @@ import json
 import copy
 import argparse
 from multiprocessing import Pool, cpu_count
+from megfile import smart_glob
+import numpy as np
 from tqdm import tqdm
-
+from PIL import Image
+from natsort import natsorted
 from transformers import AutoTokenizer
 from conversation_dataset_qwen import ConversationDataset
 import argparse
@@ -137,9 +140,88 @@ def init_worker(tokenizer_name, multimodal_cfg, dataset_name):
 
 def process_single_item(args):
     i, data, image_path = args
-    conversations = [data["conversations"]]
+    # print(f"Processing item {i}...")
+    if isinstance(data, dict):
+        image_list = []
+        image_high_list = []
+        flag_num_patches = 1
+        if 'image' in data:
+            # print("image in data")
+            image_path = dataset_dummy.list_image_path[i]
+            image_file = data['image']
+
+            # multi-crop or multi page, only support .png files
+            # if ('.jpg' not in image_file and '.png' not in image_file and '.jpeg' not in image_file) and ('.jpg' not in image_path and '.png' not in image_path and '.jpeg' not in image_path):
+            #     print(
+            #         f'image {image_file} is not a valid image file, we thus select 0-th sample instead!')
+            #     if image_file[0] == '/':
+            #         patch_dir = image_path[:-1] + image_file
+            #         patches = smart_glob(patch_dir + '*.png')
+            #     else:
+            #         patch_dir = image_path + image_file
+            #         patches = smart_glob(patch_dir + '*.png')
+
+            #     # print(patches)
+            #     if not patches:
+            #         print(f'cannot glob the dir {patch_dir}.')
+            #         return dataset_dummy.__getitem__(0)
+
+            #     # sort multi images by name
+            #     patches = natsorted(patches)
+            #     flag_num_patches = len(patches)
+
+            #     for patch in patches:
+            #         try:
+            #             image = Image.open(patch).convert('RGB')
+            #         except:
+            #             print(f'cannot identify image file {patch}.')
+            #             return dataset_dummy.__getitem__(0)
+
+            #         try:
+            #             img = dataset_dummy.image_processor(image)
+            #             image_list.append(img)
+            #             image_high_list.append(img)
+            #         except:
+            #             print(
+            #                 f'image {image_path + image_file + patch} are broken or grayscale! we thus select 0-th sample instead!')
+            #             return dataset_dummy.__getitem__(0)
+
+            # else:
+            #     print("image_file", image_file)
+            #     flag_num_patches = 1
+            #     try:
+            #         image = Image.open(
+            #             image_path + "/" + image_file).convert('RGB')
+            #         print(image.size)
+            #         image_array = np.array(image)
+
+            #         print("图像数组形状:", image_array.shape)  # (H, W, 3)
+            #     except:
+            #         print(
+            #             f'cannot identify image file {image_path + image_file}.')
+            #         return dataset_dummy.__getitem__(0)
+            #     print("2_image_file", image_file)
+            #     try:
+            #         print("image_processor")
+            #         image = dataset_dummy.image_processor(image)
+            #     except:
+            #         print(
+            #             f'image {image_file} are broken or grayscale! we thus select 0-th sample instead!')
+            #         return dataset_dummy.__getitem__(0)
+            #     print("3_image_file", image_file)
+        # print("multimodal_processor")
+        conversations = dataset_dummy.multimodal_processor(
+            [data["conversations"]], flag_num_patches)
+        # print(conversations)
+        # exit()
+    else:
+        # print("data is not a dict, using dummy data")
+        conversations = [data]
+
+    image_name = image_path + image_file
+    # print(f"Conversations length: {len(conversations)}")
     tokenized = dataset_dummy.token_processor(
-        conversations, image_path + data.get('image', ''))
+        conversations, image_name)
     tokenized_data = {
         "input_ids": tokenized["input_ids"][0].tolist(),
         "labels": tokenized["labels"][0].tolist(),
@@ -182,6 +264,11 @@ def main():
     print(f"Saving tokenized data to {args.output_json} ...")
     with open(args.output_json, "w", encoding="utf-8") as f:
         json.dump(tokenized_data, f, ensure_ascii=False, indent=2)
+    pt_path = args.output_json.replace('.json', '.pt')
+    with open(args.output_json, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    torch.save(data, pt_path)
+    print("Saved to tokenized_data.pt ✅")
 
     print("Done.")
 
