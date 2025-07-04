@@ -1,0 +1,49 @@
+experiment_name: got_finetune
+model_name_or_path: "/data_8t_1/qby/GOT-OCR2_0"
+# model_type: got
+model_max_length: 8192
+
+train_datasets: test-longest-gpt-replies
+eval_datasets: test-longest-gpt-replies
+
+# device: "cuda:1"
+seed: 42
+use_cpu: false
+use_im_start_end: true
+tf32: true
+bf16: true
+gradient_checkpointing: true
+
+optim: "adamw_torch"
+learning_rate: 2.0e-6
+warmup_ratio: 0.001
+lr_scheduler_type: "cosine"
+weight_decay: 0.0
+
+max_grad_norm: 1.0
+# gradient_accumulation_steps: 4
+
+dataloader_pin_memory: true
+dataloader_num_workers: 10
+
+# auto_find_batch_size: true
+per_device_train_batch_size: 14
+per_device_eval_batch_size: 4
+
+num_train_epochs: 1
+
+# evaluation_strategy: "no"
+eval_strategy: "no"         # 兼容 transformers 的新写法
+# predict_with_generate: true
+
+logging_steps: 1
+
+save_strategy: "steps"
+save_steps: 0.1
+save_total_limit: 5
+
+report_to: "tensorboard"
+
+deepspeed: "/apps/GOT-OCR2.0/GOT_OCR_2_master/zero_config/zero2.json"
+
+output_dir: outputs
