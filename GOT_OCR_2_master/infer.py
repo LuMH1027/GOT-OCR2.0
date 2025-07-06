@@ -1,4 +1,5 @@
 import argparse
+from types import SimpleNamespace
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import os
@@ -107,7 +108,7 @@ def eval_model(args):
     conv.append_message(conv.roles[1], None)
     prompt = conv.get_prompt()
 
-    print(prompt)
+    # print(prompt)
 
     inputs = tokenizer([prompt])
 
@@ -148,6 +149,7 @@ def eval_model(args):
             if outputs.endswith(stop_str):
                 outputs = outputs[:-len(stop_str)]
             outputs = outputs.strip()
+            print(outputs)
 
             if '**kern' in outputs:
                 import verovio
@@ -225,14 +227,12 @@ def eval_model(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--model-name", type=str,
-                        default="/data_8t_1/qby/GOT-OCR2_0")
-    parser.add_argument("--image-file", type=str, required=True)
-    parser.add_argument("--type", type=str, required=True)
-    parser.add_argument("--box", type=str, default='')
-    parser.add_argument("--color", type=str, default='')
-    parser.add_argument("--render", action='store_true')
-    args = parser.parse_args()
-
+    args = SimpleNamespace(
+        model_name="/data_8t_1/qby/GOT-OCR2_0",
+        image_file="/apps/GOT-OCR2.0/dataset/samples/1-crop.jpg",
+        type="format",
+        box="",
+        color="red",
+        render=True,
+    )
     eval_model(args)
