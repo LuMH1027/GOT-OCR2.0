@@ -79,7 +79,7 @@ def train():
     )
     print(training_args.per_device_train_batch_size)
     # model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-    save_dir = f"outputs/{model_args.experiment_name}/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+    save_dir = f"{training_args.output_dir}/{model_args.experiment_name}/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
     Path(save_dir).mkdir(parents=True, exist_ok=True)
 
     training_args.output_dir = save_dir
